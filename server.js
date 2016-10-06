@@ -27,6 +27,17 @@ fs.readFile('./public/404.html', 'utf8', (err, data) => {
 const server = http.createServer((request, response) => {
   //handles data received
   console.log(request.method);
+  switch(request.method) {
+    case 'GET':
+    incomingGet(request, response);
+    break;
+    case 'POST':
+    break;
+  }
+
+}).listen(PORT);
+
+function incomingGet(request, response) {
   switch(request.url) {
     case '/':
     response.writeHead(200, {
@@ -71,7 +82,4 @@ const server = http.createServer((request, response) => {
     response.write(notFound, 'utf8', () => {response.end();});
     break;
   }
-
-}).listen(PORT);
-
-
+}
