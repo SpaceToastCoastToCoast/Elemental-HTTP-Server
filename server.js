@@ -26,14 +26,24 @@ fs.readFile('./public/404.html', 'utf8', (err, data) => {
 
 const server = http.createServer((request, response) => {
   //handles data received
-  console.log(request.method);
-  switch(request.method) {
-    case 'GET':
-    incomingGet(request, response);
-    break;
-    case 'POST':
-    break;
-  }
+  body = [];
+  request.on('data', (data) => {
+    body.push(data);
+  }).on('end', function() {
+    body = Buffer.concat(body).toString();
+
+    console.log(request.method);
+    switch(request.method) {
+      case 'GET':
+      incomingGet(request, response);
+      break;
+      case 'POST':
+      if(request.url === '/elements') {
+        incomingPost(request, response, body);
+      }
+      break;
+    }
+  });
 
 }).listen(PORT);
 
@@ -82,4 +92,9 @@ function incomingGet(request, response) {
     response.write(notFound, 'utf8', () => {response.end();});
     break;
   }
+}
+
+function incomingPost(request, response, body) {
+  console.log(body);
+  response.end();
 }
