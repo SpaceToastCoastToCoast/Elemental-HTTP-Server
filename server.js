@@ -44,6 +44,10 @@ const server = http.createServer((request, response) => {
         incomingPost(request, response, body);
       }
       break;
+      default:
+      response.statusCode = 405;
+      response.end();
+      break;
     }
   });
 
@@ -106,5 +110,34 @@ function incomingPost(request, response, body) {
     pairedData[pair[0]] = pair[1];
   });
   console.log(pairedData);
+  //now verify the data
+  if(!pairedData.hasOwnProperty('elementName')) {
+    response.statusCode = 400;
+    response.end();
+    return;
+  }
+  pairedData.elementDescription = pairedData.elementDescription.split('+').join(' ');
+  let generatedPage = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Elements - ${pairedData.elementName}</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <h1>${pairedData.elementName}</h1>
+  <h2>${pairedData.elementSymbol}</h2>
+  <h3>Atomic number ${pairedData.elementAtomicNumber}</h3>
+  <p>${pairedData.elementDescription}</p>
+  <p><a href="/">back</a></p>
+</body>
+</html>`;
+  //now write to fs
+  fs.writeFile(`./public/${pairedData.elementName.toLowerCase()}.html`, generatedPage, (err) => {
+    if (err) {
+      throw err;
+    }
+    console.log('Created file');
+  });
   response.end();
 }
