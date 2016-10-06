@@ -28,7 +28,9 @@ const server = http.createServer((request, response) => {
   //handles data received
   body = [];
   request.on('data', (data) => {
-    body.push(data);
+    if(request.url === '/elements') {
+      body.push(data);
+    }
   }).on('end', function() {
     body = Buffer.concat(body).toString();
 
@@ -95,6 +97,14 @@ function incomingGet(request, response) {
 }
 
 function incomingPost(request, response, body) {
+  let pairedData = {};
   console.log(body);
+  let bodyDataArray = body.split('&');
+  console.log(bodyDataArray);
+  bodyDataArray.forEach((element) => {
+    let pair = element.split('=');
+    pairedData[pair[0]] = pair[1];
+  });
+  console.log(pairedData);
   response.end();
 }
