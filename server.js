@@ -1,90 +1,77 @@
-const net = require('net');
+const http = require('http');
 const fs = require('fs');
+const PORT = 8080;
 
-function okHeader() {
-  let now = new Date();
-  return "HTTP/1.1 200 OK\nServer: nginx/1.4.6 (Ubuntu)\n" +
-  'Date: ' + now.toUTCString() + '\n' +
-  'Content-Type: text/html; charset=utf-8\n\n';
-}
-function cssHeader() {
-  let now = new Date();
-  return "HTTP/1.1 200 OK\nServer: nginx/1.4.6 (Ubuntu)\n" +
-  'Date: ' + now.toUTCString() + '\n' +
-  'Content-Type: text/css; charset=utf-8\n\n';
-}
-function notFoundHeader() {
-  let now = new Date();
-  return "HTTP/1.0 404 Not Found\nServer: nginx/1.4.6 (Ubuntu)\n" +
-  'Date: ' + now.toUTCString() + '\n' +
-  'Content-Type: text/html; charset=utf-8\n\n';
-}
-
-let index = okHeader();
-let stylesheet = cssHeader();
-let hydrogen = okHeader();
-let helium = okHeader();
-let notFound = notFoundHeader();
+let index;
+let stylesheet;
+let hydrogen;
+let helium;
+let notFound;
 
 fs.readFile('./public/index.html', 'utf8', (err, data) => {
-  index += data;
+  index = data;
 });
 fs.readFile('./public/css/styles.css', 'utf8', (err, data) => {
-  stylesheet += data;
+  stylesheet = data;
 });
 fs.readFile('./public/hydrogen.html', 'utf8', (err, data) => {
-  hydrogen += data;
+  hydrogen = data;
 });
 fs.readFile('./public/helium.html', 'utf8', (err, data) => {
-  helium += data;
+  helium = data;
 });
 fs.readFile('./public/404.html', 'utf8', (err, data) => {
-  notFound += data;
+  notFound = data;
 });
 
-const server = net.createServer((request) => {
+const server = http.createServer((request, response) => {
   //handles data received
-  request.on('data', (data) => {
-    console.log(data.toString());
-    let uri = './public' + data.toString().split(' ')[1];
-    console.log(uri);
-    switch(uri) {
-      case './public/':
-      request.write(index, 'utf8', () => {request.end();});
-      break;
-      case './public/index.html':
-      request.write(index, 'utf8', () => {request.end();});
-      break;
-      case './public/css/styles.css':
-      request.write(stylesheet, 'utf8', () => {request.end();});
-      break;
-      case './public/hydrogen.html':
-      request.write(hydrogen, 'utf8', () => {request.end();});
-      break;
-      case './public/helium.html':
-      request.write(helium, 'utf8', () => {request.end();});
-      break;
-      default:
-      console.log(404);
-      request.write(notFound, 'utf8', () => {request.end();});
-      break;
-    }
+  console.log(request.method);
+  switch(request.url) {
+    case '/':
+    response.writeHead(200, {
+      'Date' : new Date().toUTCString(),
+      'Content-Type' : 'text/html; charset=utf-8'
+    });
+    response.write(index, 'utf8', () => {response.end();});
+    break;
+    case '/index.html':
+    response.writeHead(200, {
+      'Date' : new Date().toUTCString(),
+      'Content-Type' : 'text/html; charset=utf-8'
+    });
+    response.write(index, 'utf8', () => {response.end();});
+    break;
+    case '/css/styles.css':
+    response.writeHead(200, {
+      'Date' : new Date().toUTCString(),
+      'Content-Type' : 'text/css; charset=utf-8'
+    });
+    response.write(stylesheet, 'utf8', () => {response.end();});
+    break;
+    case '/hydrogen.html':
+    response.writeHead(200, {
+      'Date' : new Date().toUTCString(),
+      'Content-Type' : 'text/html; charset=utf-8'
+    });
+    response.write(hydrogen, 'utf8', () => {response.end();});
+    break;
+    case '/helium.html':
+    response.writeHead(200, {
+      'Date' : new Date().toUTCString(),
+      'Content-Type' : 'text/html; charset=utf-8'
+    });
+    response.write(helium, 'utf8', () => {response.end();});
+    break;
+    default:
+    response.writeHead(404, {
+      'Date' : new Date().toUTCString(),
+      'Content-Type' : 'text/html; charset=utf-8'
+    });
+    response.write(notFound, 'utf8', () => {response.end();});
+    break;
+  }
 
-  });
+}).listen(PORT);
 
-  //handles request ended
-  request.on('end', () => {
-    console.log('connection closed');
-  });
-
-  request.on('error', () => {
-    request.end();
-  });
-});
-
-//listen for events on port 8080
-server.listen({port:8080}, () => {
-  const address = server.address();
-  console.log(`opened server on port ${address.port}`);
-});
 
