@@ -19,7 +19,6 @@ const server = http.createServer((request, response) => {
     }
   }).on('end', function() {
     body = Buffer.concat(body).toString();
-    console.log(request.headers);
     let auth = checkAuth(request, response);
 
     switch(request.method) {
@@ -79,3 +78,5 @@ const server = http.createServer((request, response) => {
   });
 
 }).listen(PORT);
+
+module.exports = server;
