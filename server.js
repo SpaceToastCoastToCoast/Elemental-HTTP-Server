@@ -34,7 +34,6 @@ const server = http.createServer((request, response) => {
   }).on('end', function() {
     body = Buffer.concat(body).toString();
 
-    console.log(request.method);
     switch(request.method) {
       case 'GET':
       incomingGet(request, response);
@@ -76,26 +75,22 @@ function incomingGet(request, response) {
     });
     response.write(stylesheet, 'utf8', () => {response.end();});
     break;
-    case '/hydrogen.html':
-    response.writeHead(200, {
-      'Date' : new Date().toUTCString(),
-      'Content-Type' : 'text/html; charset=utf-8'
-    });
-    response.write(hydrogen, 'utf8', () => {response.end();});
-    break;
-    case '/helium.html':
-    response.writeHead(200, {
-      'Date' : new Date().toUTCString(),
-      'Content-Type' : 'text/html; charset=utf-8'
-    });
-    response.write(helium, 'utf8', () => {response.end();});
-    break;
     default:
-    response.writeHead(404, {
-      'Date' : new Date().toUTCString(),
-      'Content-Type' : 'text/html; charset=utf-8'
+    fs.readFile(`./public${request.url}`, (err, data) => {
+      if(err) {
+        response.writeHead(404, {
+          'Date' : new Date().toUTCString(),
+          'Content-Type' : 'text/html; charset=utf-8'
+        });
+        response.write(notFound, 'utf8', () => {response.end();})
+      } else {
+        response.writeHead(200, {
+          'Date' : new Date().toUTCString(),
+          'Content-Type' : 'text/html; charset=utf-8'
+        });
+        response.write(data, 'utf8', () => {response.end();});
+      }
     });
-    response.write(notFound, 'utf8', () => {response.end();});
     break;
   }
 }
@@ -126,7 +121,11 @@ function incomingPost(request, response, body) {
     }
     console.log('Created file');
   });
-  response.end();
+  updateIndex(pairedData.elementName);
+  response.writeHead(200, {
+    'Content-Type' : 'application/json'
+  });
+  response.end('{ "success" : true }');
 }
 
 function makeElementPage(elementObject) {
@@ -145,4 +144,39 @@ function makeElementPage(elementObject) {
   <p><a href="/">back</a></p>
 </body>
 </html>`;
+}
+
+function updateIndex(elementName) {
+  let pageCount;
+  fs.readdir('./public/', (err, data) => {
+    pageCount = data.filter((element) => {
+      console.log('element inside fs.readdir', element);
+      return ['.keep', '404.html', 'index.html', 'css'].indexOf(element) === -1;
+    });
+    let linksList = pageCount.reduce((prev, curr) => {
+      return prev + `<li><a href="${curr}">${curr.slice(0, -5)}</a></li>\n    `;
+    }, "");
+  let newIndex = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Elements</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <h1>The Elements</h1>
+  <h2>These are all the known elements.</h2>
+  <h3>These are ${pageCount.length}</h3>
+  <ol>
+    ${linksList}
+  </ol>
+</body>
+</html>`;
+    fs.writeFile(`./public/index.html`, newIndex, (err) => {
+      if (err) {
+        throw err;
+      }
+      console.log('Created file');
+    });
+  });
 }
