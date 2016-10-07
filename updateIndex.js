@@ -7,9 +7,9 @@ function updateIndex() {
     pageCount = data.filter((element) => {
       return ['.keep', '404.html', 'index.html', 'css'].indexOf(element) === -1;
     });
-    let linksList = pageCount.reduce((prev, curr) => {
-      return prev + `<li><a href="${curr}">${curr.slice(0, -5)}</a></li>\n    `;
-    }, "");
+    let linksList = pageCount.map((el) => {
+      return `<li><a href="${el}">${el.slice(0, -5)}</a></li>`;
+    }).join("\n");
   let newIndex = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,7 +30,6 @@ function updateIndex() {
       if (err) {
         throw err;
       }
-      console.log('Created file');
     });
   });
 }

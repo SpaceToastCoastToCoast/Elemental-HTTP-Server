@@ -4,14 +4,11 @@ const updateIndex = require('./updateIndex.js');
 
 function incomingPost(request, response, body) {
   let pairedData = {};
-  console.log(body);
   let bodyDataArray = body.split('&');
-  console.log(bodyDataArray);
   bodyDataArray.forEach((element) => {
     let pair = element.split('=');
     pairedData[pair[0]] = pair[1];
   });
-  console.log(pairedData);
   //now verify the data
   if(!pairedData.hasOwnProperty('elementName') || !pairedData.hasOwnProperty('elementSymbol') ||
     !pairedData.hasOwnProperty('elementAtomicNumber') || !pairedData.hasOwnProperty('elementDescription')) {
@@ -26,7 +23,6 @@ function incomingPost(request, response, body) {
     if (err) {
       throw err;
     }
-    console.log('Created file');
   });
   updateIndex(pairedData.elementName);
   response.writeHead(200, {
