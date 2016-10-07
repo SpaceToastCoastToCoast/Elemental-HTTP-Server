@@ -3,6 +3,7 @@ const fs = require('fs');
 const postHelper = require('./postHelper.js');
 const getHelper = require('./getHelper.js');
 const putHelper = require('./putHelper.js');
+const deleteHelper = require('./deleteHelper.js');
 const PORT = 8080;
 
 const server = http.createServer((request, response) => {
@@ -26,6 +27,9 @@ const server = http.createServer((request, response) => {
       break;
       case 'PUT':
       putHelper(request, response, body);
+      break;
+      case 'DELETE':
+      deleteHelper(request, response);
       break;
       default:
       response.statusCode = 405;

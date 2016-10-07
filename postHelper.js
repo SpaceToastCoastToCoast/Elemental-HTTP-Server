@@ -52,11 +52,10 @@ function makeElementPage(elementObject) {
 </html>`;
 }
 
-function updateIndex(elementName) {
+function updateIndex() {
   let pageCount;
   fs.readdir('./public/', (err, data) => {
     pageCount = data.filter((element) => {
-      console.log('element inside fs.readdir', element);
       return ['.keep', '404.html', 'index.html', 'css'].indexOf(element) === -1;
     });
     let linksList = pageCount.reduce((prev, curr) => {
