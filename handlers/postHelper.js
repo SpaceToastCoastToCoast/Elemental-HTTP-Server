@@ -1,34 +1,37 @@
 const http = require('http');
 const fs = require('fs');
+const checkAuth = require('./checkAuth.js');
 const updateIndex = require('./updateIndex.js');
 
 function incomingPost(request, response, body) {
-  let pairedData = {};
-  let bodyDataArray = body.split('&');
-  bodyDataArray.forEach((element) => {
-    let pair = element.split('=');
-    pairedData[pair[0]] = pair[1];
-  });
-  //now verify the data
-  if(!pairedData.hasOwnProperty('elementName') || !pairedData.hasOwnProperty('elementSymbol') ||
-    !pairedData.hasOwnProperty('elementAtomicNumber') || !pairedData.hasOwnProperty('elementDescription')) {
-    response.statusCode = 400;
-    response.end();
-    return;
-  }
-  pairedData.elementDescription = pairedData.elementDescription.split('+').join(' ');
-  let generatedPage = makeElementPage(pairedData);
-  //now write to fs
-  fs.writeFile(`./public/${pairedData.elementName.toLowerCase()}.html`, generatedPage, (err) => {
-    if (err) {
-      throw err;
+  if(checkAuth(request, response)) {
+    let pairedData = {};
+    let bodyDataArray = body.split('&');
+    bodyDataArray.forEach((element) => {
+      let pair = element.split('=');
+      pairedData[pair[0]] = pair[1];
+    });
+    //now verify the data
+    if(!pairedData.hasOwnProperty('elementName') || !pairedData.hasOwnProperty('elementSymbol') ||
+      !pairedData.hasOwnProperty('elementAtomicNumber') || !pairedData.hasOwnProperty('elementDescription')) {
+      response.statusCode = 400;
+      response.end();
+      return;
     }
-  });
-  updateIndex(pairedData.elementName);
-  response.writeHead(200, {
-    'Content-Type' : 'application/json'
-  });
-  response.end('{ "success" : true }');
+    pairedData.elementDescription = pairedData.elementDescription.split('+').join(' ');
+    let generatedPage = makeElementPage(pairedData);
+    //now write to fs
+    fs.writeFile(`./public/${pairedData.elementName.toLowerCase()}.html`, generatedPage, (err) => {
+      if (err) {
+        throw err;
+      }
+    });
+    updateIndex(pairedData.elementName);
+    response.writeHead(200, {
+      'Content-Type' : 'application/json'
+    });
+    response.end('{ "success" : true }');
+  }
 }
 
 function makeElementPage(elementObject) {
@@ -49,6 +52,4 @@ function makeElementPage(elementObject) {
 </html>`;
 }
 
-module.exports = {
-  incomingPost : incomingPost
-};
+module.exports = incomingPost;
