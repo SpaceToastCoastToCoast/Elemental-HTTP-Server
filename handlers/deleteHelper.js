@@ -7,10 +7,11 @@ function incomingDelete(request, response) {
   if(checkAuth(request, response) === true) {
     //find if file exists in dir
     fs.readdir('./public/', (err, data) => {
-      //if no filenames match this element
       if(err) {
         throw err;
       }
+
+      //if no filenames match this element
       if(!data.some((filename)=> {
         return filename === request.url.slice(1);
       })) {
@@ -21,6 +22,7 @@ function incomingDelete(request, response) {
         return;
       }
 
+      //else, delete
       fs.unlink(`./public${request.url}`, () => {
         updateIndex();
         response.writeHead(200, {

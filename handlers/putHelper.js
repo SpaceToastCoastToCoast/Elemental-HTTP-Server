@@ -14,8 +14,10 @@ function incomingPut(request, response, body) {
       response.end('bad PUT');
       return;
     }
+
     //find if file exists in dir
     fs.readdir('./public/', (err, data) => {
+
       //if no filenames match this element
       if(data.indexOf(request.url.slice(1)) < 0) {
         response.writeHead(500, {
@@ -25,6 +27,7 @@ function incomingPut(request, response, body) {
         return;
       }
 
+      //else, write to file
       let generatedPage = makeElementPage(pairedData);
       //now write to fs
       fs.writeFile(`./public/${pairedData.elementName.toLowerCase()}.html`, generatedPage, (err) => {
@@ -32,9 +35,11 @@ function incomingPut(request, response, body) {
           throw err;
         }
       });
+
       response.writeHead(200, {
         'Content-Type' : 'application/json'
       });
+
       response.end('{ "success" : true }');
     });
   }

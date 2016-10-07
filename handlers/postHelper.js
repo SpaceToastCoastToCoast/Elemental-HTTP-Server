@@ -1,24 +1,21 @@
 const http = require('http');
 const fs = require('fs');
 const checkAuth = require('./checkAuth.js');
+const qs = require('querystring');
 const updateIndex = require('./updateIndex.js');
 
 function incomingPost(request, response, body) {
   if(checkAuth(request, response)) {
-    let pairedData = {};
-    let bodyDataArray = body.split('&');
-    bodyDataArray.forEach((element) => {
-      let pair = element.split('=');
-      pairedData[pair[0]] = pair[1];
-    });
+    let pairedData = qs.parse(body);
+
     //now verify the data
-    if(!pairedData.hasOwnProperty('elementName') || !pairedData.hasOwnProperty('elementSymbol') ||
-      !pairedData.hasOwnProperty('elementAtomicNumber') || !pairedData.hasOwnProperty('elementDescription')) {
+    if(pairedData.elementName === undefined || pairedData.elementSymbol === undefined ||
+      pairedData.elementAtomicNumber === undefined || pairedData.elementDescription === undefined) {
       response.statusCode = 400;
-      response.end();
+      response.end('bad POST');
       return;
     }
-    pairedData.elementDescription = pairedData.elementDescription.split('+').join(' ');
+
     let generatedPage = makeElementPage(pairedData);
     //now write to fs
     fs.writeFile(`./public/${pairedData.elementName.toLowerCase()}.html`, generatedPage, (err) => {

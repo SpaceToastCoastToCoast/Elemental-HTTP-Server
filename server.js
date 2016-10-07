@@ -1,7 +1,6 @@
 const http = require('http');
 const fs = require('fs');
 const helpers = require('./handlers/');
-console.log(helpers);
 const PORT = 8080;
 const methods = {
   GET: 'GET',
@@ -9,6 +8,7 @@ const methods = {
   PUT: 'PUT',
   DELETE: 'DELETE'
 };
+
 const server = http.createServer((request, response) => {
   //handles data received
   body = [];
@@ -22,21 +22,21 @@ const server = http.createServer((request, response) => {
 
     switch(request.method) {
       case methods.GET:
-      helpers.getHelper(request, response);
-      break;
+        helpers.getHelper(request, response);
+        break;
       case methods.POST:
-      helpers.postHelper(request, response, body);
-      break;
+        helpers.postHelper(request, response, body);
+        break;
       case methods.PUT:
-      helpers.putHelper(request, response, body);
-      break;
+        helpers.putHelper(request, response, body);
+        break;
       case methods.DELETE:
-      helpers.deleteHelper(request, response);
-      break;
+        helpers.deleteHelper(request, response);
+        break;
       default:
-      response.statusCode = 405;
-      response.end();
-      break;
+        response.statusCode = 405;
+        response.end();
+        break;
     }
   });
 
