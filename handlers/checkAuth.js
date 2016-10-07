@@ -1,6 +1,6 @@
 const http = require('http');
 const buffer = require('buffer');
-const correctCreds = require('./secret.js');
+const correctCreds = require('../secret.js');
 
 module.exports = function(request, response) {
   //isAuth can have three states: No auth, Incorrect auth, Correct auth

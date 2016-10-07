@@ -1,10 +1,6 @@
 const http = require('http');
 const fs = require('fs');
-const postHelper = require('./postHelper.js');
-const getHelper = require('./getHelper.js');
-const putHelper = require('./putHelper.js');
-const deleteHelper = require('./deleteHelper.js');
-const checkAuth = require('./checkAuth.js');
+const helpers = require('./handlers/');
 const PORT = 8080;
 const methods = {
   GET: 'GET',
@@ -25,11 +21,11 @@ const server = http.createServer((request, response) => {
     }
   }).on('end', function() {
     body = Buffer.concat(body).toString();
-    let auth = checkAuth(request, response);
+    let auth = helpers.checkAuth(request, response);
 
     switch(request.method) {
       case methods.GET:
-      getHelper(request, response);
+      helpers.getHelper(request, response);
       break;
       case methods.POST:
       if(auth === null) {
@@ -43,7 +39,7 @@ const server = http.createServer((request, response) => {
         });
         response.end(invalidAuth);
       } else if(request.url === '/elements') {
-        postHelper.incomingPost(request, response, body);
+        helpers.postHelper.incomingPost(request, response, body);
       }
       break;
       case methods.PUT:
@@ -58,7 +54,7 @@ const server = http.createServer((request, response) => {
         });
         response.end(invalidAuth);
       } else {
-        putHelper(request, response, body);
+        helpers.putHelper(request, response, body);
       }
       break;
       case methods.DELETE:
@@ -73,7 +69,7 @@ const server = http.createServer((request, response) => {
         });
         response.end(invalidAuth);
       } else {
-        deleteHelper(request, response);
+        helpers.deleteHelper(request, response);
       }
       break;
       default:
